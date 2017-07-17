@@ -254,7 +254,7 @@ simLevelA14 <- function(n,
                      innov = list("type" = "MA", "innov" = "normal"),
                      maParam = NULL,
                      factorParam = NULL,
-                     needPvalue = FALSE) {
+                     needPvalue = TRUE) {
     A1 <- rep(0, M)
     A2 <- rep(0, M)
     A3 <- rep(0, M)
@@ -267,7 +267,7 @@ simLevelA14 <- function(n,
         else if (innov$type == "factor") {
             theData <- fanFactorModelGen(n, p, theParam = factorParam, mu = rep(0,p))
         }
-        S <- var(theData)
+        S <- t(theData)%*% theData
         A1[i] <- randomizationTest(
             B = B,
             GTStat = A1TempStatistic(theData,S),
@@ -315,10 +315,5 @@ simLevelA14 <- function(n,
         setTxtProgressBar(pb,i/M)
     }
     close(pb)
-    theResult <- list()
-    theResult$A1 <- A1
-    theResult$A2 <- A2
-    theResult$A3 <- A3
-    theResult$A4 <- A4
-    unlist(theResult)
+    theResult <- data.frame(A1,A2,A3,A4)
 }
