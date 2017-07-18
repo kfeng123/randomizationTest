@@ -317,3 +317,48 @@ simLevelA14 <- function(n,
     close(pb)
     theResult <- data.frame(A1,A2,A3,A4)
 }
+
+#' simulation of the level of the proposed randomization test
+#' @param n n
+#' @param p p
+#' @param M simulate M times test procedure
+#' @param k Moving average parameter
+#' @param rho Moving average parameter
+#' @param mu mean value
+#' @param B resample B times to get randomization test
+#' @export
+simLevelProposed <- function(n,
+                     p,
+                     M,
+                     B,
+                     innov = list("type" = "MA", "innov" = "normal"),
+                     maParam = NULL,
+                     factorParam = NULL,
+                     needPvalue = TRUE) {
+    thePvalue <- rep(0, M)
+    CQPvalue <- rep(0, M)
+    pb <- txtProgressBar(style=3)
+    for (i in 1:M) {
+        if (innov$type == "MA") {
+            theData <- movingAverageGen(n, p, maParam, mu=rep(0,p), innov = innov$innov)
+        }
+        else if (innov$type == "factor") {
+            theData <- fanFactorModelGen(n, p, theParam = factorParam, mu = rep(0,p))
+        }
+        thePvalue[i] <- randomizationTest(
+            B = B,
+            GTStat = chenTempStatistic(theData),
+            genGT = function() {
+                ranGT = rbinom(n, 1, 0.5) * 2 - 1
+                return(ranGT)
+            },
+            initGT = rep(1, n),
+            alpha = 0.05,
+            needPvalue = needPvalue
+        )
+        CQPvalue[i] <- CQTest(theData)
+        setTxtProgressBar(pb,i/M)
+    }
+    close(pb)
+    theResult <- data.frame(thePvalue,CQPvalue)
+}
