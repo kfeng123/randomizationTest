@@ -1,8 +1,8 @@
 library(randomizationTest)
 library(xtable)
 
-n <- 100
-p <- 600
+n <- 200
+p <- 1002
 M <- 2000
 B <- 1000
 

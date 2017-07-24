@@ -116,6 +116,7 @@ simRanCQ <- function(n,
 
     thePvalue <- rep(0, M)
     CQPvalue <- rep(0, M)
+    pb <- txtProgressBar(style=3)
     for (i in 1:M) {
         if (innov$type == "MA") {
             theData <- movingAverageGen(n, p, maParam, mu, innov = innov$innov)
@@ -135,7 +136,11 @@ simRanCQ <- function(n,
             needPvalue = needPvalue
         )
         CQPvalue[i] <- CQTest(theData, trSquaredPopVar)
+
+        setTxtProgressBar(pb,i/M)
     }
+    close(pb)
+
     theResult <- list()
     theResult$n <- n
     theResult$p <- p

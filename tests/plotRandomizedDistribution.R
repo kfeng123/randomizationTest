@@ -1,3 +1,4 @@
+library(randomizationTest)
 
 n <- 100
 p <- 600
@@ -28,7 +29,8 @@ for(i in 1:10000){
 theDistribution<-theDistribution[theDistribution<=4]
 theDistribution<-theDistribution[theDistribution>=-4]
 
-png("normal3.png")
+postscript("normal3.eps",width=4,height=3)
+par(mar=c(3,4,4,3)+0.1)
 hist(theDistribution,breaks=mybreaks,freq=FALSE,col="gray",
      xlab="",ylab="",
      main="Normal moving average model, k=3",xlim=c(-4,4))
@@ -59,7 +61,8 @@ for(i in 1:10000){
 
 theDistribution<-theDistribution[theDistribution<=4]
 theDistribution<-theDistribution[theDistribution>=-4]
-png("normal500.png")
+postscript("normal500.eps",width=4,height=3)
+par(mar=c(3,4,4,3)+0.1)
 hist(theDistribution,breaks=mybreaks,freq=FALSE,col="gray",
      xlab="",ylab="",
      main="Normal moving average model, k=500",xlim=c(-4,4))
@@ -90,7 +93,8 @@ for(i in 1:10000){
 
 theDistribution<-theDistribution[theDistribution<=4]
 theDistribution<-theDistribution[theDistribution>=-4]
-png("gamma3.png")
+postscript("gamma3.eps",width=4,height=3)
+par(mar=c(3,4,4,3)+0.1)
 hist(theDistribution,breaks=mybreaks,freq=FALSE,col="gray",
      xlab="",ylab="",
      main="Gamma moving average model, k=3",xlim=c(-4,4))
@@ -121,7 +125,8 @@ for(i in 1:10000){
 
 theDistribution<-theDistribution[theDistribution<=4]
 theDistribution<-theDistribution[theDistribution>=-4]
-png("gamma500.png")
+postscript("gamma500.eps",width=4,height=3)
+par(mar=c(3,4,4,3)+0.1)
 hist(theDistribution,breaks=mybreaks,freq=FALSE,col="gray",
      xlab="",ylab="",
      main="Gamma moving average model, k=500",xlim=c(-4,4))
@@ -150,7 +155,8 @@ for(i in 1:10000){
 
 theDistribution<-theDistribution[theDistribution<=4]
 theDistribution<-theDistribution[theDistribution>=-4]
-png("factor1.png")
+postscript("factor1.eps",width=4,height=3)
+par(mar=c(3,4,4,3)+0.1)
 hist(theDistribution,breaks=mybreaks,freq=FALSE,col="gray",
      xlab="",ylab="",
      main="factor model, case I",xlim=c(-4,4))
@@ -179,7 +185,8 @@ for(i in 1:10000){
 
 theDistribution<-theDistribution[theDistribution<=4]
 theDistribution<-theDistribution[theDistribution>=-4]
-png("factor2.png")
+postscript("factor2.eps",width=4,height=3)
+par(mar=c(3,4,4,3)+0.1)
 hist(theDistribution,breaks=mybreaks,freq=FALSE,col="gray",
      xlab="",ylab="",
      main="factor model, case II",xlim=c(-4,4))

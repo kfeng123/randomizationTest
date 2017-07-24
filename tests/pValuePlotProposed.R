@@ -158,4 +158,4 @@ myPlot <- ggplot(df,aes(x,colour=y))+
     facet_wrap(~z,nrow=3)+
     expand_limits(x=c(0,1),y=c(0,1))
 
-ggsave("pValuePlotProposed.png",myPlot,width=20,height=20,units="cm")
+ggsave("pValuePlotProposed.eps",myPlot)#,width=20,height=20,units="cm")
