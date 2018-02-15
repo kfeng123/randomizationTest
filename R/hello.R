@@ -34,12 +34,11 @@ kSamplePermutation <- function(k, Ns,ran =sample.int(sum(Ns))) {
 #' @export
 randomizationTest <- function(GTStat,
                               genGT,
-                              initGT,
+                              theTestStat,
                               B = 100,
                               alpha = 0.05,
                               needPvalue = FALSE) {
     theSum <- 0
-    theTestStat <- GTStat(initGT)
     if (needPvalue) {
         for (i in 1:B) {
             if (GTStat(genGT()) >= theTestStat) {
@@ -64,6 +63,12 @@ randomizationTest <- function(GTStat,
                 }
             }
         }
+        if (theSum > (B + 1) * alpha - 1) {
+            return(1)
+        }
+        if (i - theSum >= B - (B + 1) * alpha + 1) {
+            return(0)
+        }
     }
 }
 
@@ -73,12 +78,10 @@ randomizationTest <- function(GTStat,
 
 
 
-#' simulation of randomization test and CQ test
+#' simulation of randomization test, bootstrap test and CQ test
 #' @param n n
 #' @param p p
 #' @param M simulate M times test procedure to compute empirical power
-#' @param k Moving average parameter
-#' @param rho Moving average parameter
 #' @param mu mean value
 #' @param B resample B times to get randomization test
 #' @param SNR the signal noise ratio we need, mean value will scale to fit this SNR
@@ -93,12 +96,16 @@ simRanCQ <- function(n,
                      innov = list("type" = "MA", "innov" = "normal"),
                      maParam = NULL,
                      factorParam = NULL,
+                     compoundParam = NULL,
                      needPvalue = FALSE) {
     if (innov$type == "MA") {
         popVar <- varMovingAverage(p, maParam$k, maParam$rho)
     }
-    else{
+    else if(innov$type == "factor"){
         popVar <- varFanFactorModel(p, factorParam)
+    }
+    else if(innov$type == "compound"){
+        popVar <- varCompoundModel(p,compoundParam)
     }
     trSquaredPopVar <- sum(popVar ^ 2)
 
@@ -116,6 +123,7 @@ simRanCQ <- function(n,
 
     thePvalue <- rep(0, M)
     CQPvalue <- rep(0, M)
+    bootstrapPvalue <- rep(0, M)
     pb <- txtProgressBar(style=3)
     for (i in 1:M) {
         if (innov$type == "MA") {
@@ -124,17 +132,37 @@ simRanCQ <- function(n,
         else if (innov$type == "factor") {
             theData <- fanFactorModelGen(n, p, theParam = factorParam, mu = mu)
         }
+        else if (innov$type == "compound"){
+            theData <- compoundModelGen(n,p, compoundParam, mu= mu)
+        }
+        # randomization p value
+        tmpGTStat <- chenTempStatistic(theData)
         thePvalue[i] <- randomizationTest(
             B = B,
-            GTStat = chenTempStatistic(theData),
+            GTStat = tmpGTStat,
             genGT = function() {
-                ranGT = rbinom(n, 1, 0.5) * 2 - 1
+                ranGT <- rbinom(n, 1, 0.5) * 2 - 1
                 return(ranGT)
             },
-            initGT = rep(1, n),
+            theTestStat = tmpGTStat(rep(1,n)),
             alpha = 0.05,
             needPvalue = needPvalue
         )
+
+        # Bootstrap p value
+        bootstrapPvalue[i] <- randomizationTest(
+            B = B,
+            GTStat = bootstrapTempStatistic(theData),
+            genGT = function() {
+                ranGT <- sample(n,replace=TRUE)
+                return(ranGT)
+            },
+            theTestStat = tmpGTStat(rep(1,n)),
+            alpha = 0.05,
+            needPvalue = needPvalue
+        )
+
+        # asymptotic p value
         CQPvalue[i] <- CQTest(theData, trSquaredPopVar)
 
         setTxtProgressBar(pb,i/M)
@@ -145,10 +173,11 @@ simRanCQ <- function(n,
     theResult$n <- n
     theResult$p <- p
     theResult$k <- k
-    theResult$theoreticalPower <- pnorm(qnorm(0.05) + theNewSNR)
+    theResult$SNR <- theNewSNR
+    #theResult$theoreticalPower <- pnorm(qnorm(0.05) + theNewSNR)
     theResult$randomizationPower <- mean(thePvalue <= 0.05)
     theResult$CQPower <- mean(CQPvalue <= 0.05)
-    theResult$SNR <- theNewSNR
+    theResult$bootstrapPower <- mean(bootstrapPvalue <= 0.05)
     unlist(theResult)
 }
 
@@ -339,9 +368,11 @@ simLevelProposed <- function(n,
                      innov = list("type" = "MA", "innov" = "normal"),
                      maParam = NULL,
                      factorParam = NULL,
+                     compoundParam = NULL,
                      needPvalue = TRUE) {
     thePvalue <- rep(0, M)
     CQPvalue <- rep(0, M)
+    bootstrapPvalue <- rep(0, M)
     pb <- txtProgressBar(style=3)
     for (i in 1:M) {
         if (innov$type == "MA") {
@@ -350,20 +381,38 @@ simLevelProposed <- function(n,
         else if (innov$type == "factor") {
             theData <- fanFactorModelGen(n, p, theParam = factorParam, mu = rep(0,p))
         }
+        else if (innov$type == "compound"){
+            theData <- compoundModelGen(n,p, compoundParam, mu= rep(0,p))
+        }
+
+        tmpGTStat <- chenTempStatistic(theData)
         thePvalue[i] <- randomizationTest(
             B = B,
-            GTStat = chenTempStatistic(theData),
+            GTStat = tmpGTStat,
             genGT = function() {
-                ranGT = rbinom(n, 1, 0.5) * 2 - 1
+                ranGT <- rbinom(n, 1, 0.5) * 2 - 1
                 return(ranGT)
             },
-            initGT = rep(1, n),
+            theTestStat = tmpGTStat(rep(1,n)),
             alpha = 0.05,
             needPvalue = needPvalue
         )
+        # Bootstrap
+        bootstrapPvalue[i] <- randomizationTest(
+            B = B,
+            GTStat = bootstrapTempStatistic(theData),
+            genGT = function() {
+                ranGT <- sample(n,replace=TRUE)
+                return(ranGT)
+            },
+            theTestStat = tmpGTStat(rep(1,n)),
+            alpha = 0.05,
+            needPvalue = needPvalue
+        )
+
         CQPvalue[i] <- CQTest(theData)
         setTxtProgressBar(pb,i/M)
     }
     close(pb)
-    theResult <- data.frame(thePvalue,CQPvalue)
+    theResult <- data.frame(thePvalue,CQPvalue,bootstrapPvalue)
 }

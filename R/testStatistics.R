@@ -6,12 +6,29 @@
 chenTempStatistic <- function(theData) {
     n <- nrow(theData)
     X <- theData %*% t(theData)
+    diag(X) <- 0
     GTStat <- function(ranGT) {
         theSum <- t(ranGT) %*% X %*% ranGT
         return(theSum)
     }
     return(GTStat)
 }
+
+#' generate the bootstrap statistic based on Chen's test statistic
+#' @param theData the data
+#' @return Bstat a function to generate boostrap statisitc
+#' @export
+bootstrapTempStatistic <- function(theData) {
+    n <- nrow(theData)
+    theData <- scale(theData,scale=F)
+    X <- theData %*% t(theData)
+    GTStat <- function(ranGT) {
+        theSum <- sum(X[ranGT,ranGT])-sum(diag(X[ranGT,ranGT]))
+        return(theSum)
+    }
+    return(GTStat)
+}
+
 
 #' generate the randomization statistic based on A1
 #' @param theData the data

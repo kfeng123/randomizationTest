@@ -3,7 +3,7 @@ library(randomizationTest)
 library(xtable)
 
 n <- 200
-p <- 1000
+p <- 1002
 M <- 2000
 B <- 1000
 
@@ -30,8 +30,8 @@ for (SNR in 0.5 * 0:6) {
     )
     finalResult <- rbind(finalResult, temp)
 }
-finalResult[, 4] <- round(finalResult[, 4], 3)
-jjj1 <- finalResult[, c(7, 4, 5, 6)]
+finalResult[, c(5,6,7)] <- round(finalResult[, c(5,6,7)], 3)
+jjj1 <- finalResult[, c( 4, 5, 6, 7)]
 #print(xtable(finalResult[,c(7,4,5,6)],auto=TRUE),include.rownames = FALSE)
 
 
@@ -50,15 +50,17 @@ for (SNR in 0.5 * 0:6) {
         sparse = FALSE,
         B = B,
         SNR = SNR,
-        innov=list("type"="MA","innov"="gamma"),
+        #innov=list("type"="MA","innov"="gamma"),
+        innov = list("type" = "MA","innov"="gamma"),
         maParam = list("k" = k, "rho" = rho),
         factorParam = list("a" = a, "b" = b),
         needPvalue = FALSE
     )
     finalResult <- rbind(finalResult, temp)
 }
-finalResult[, 4] <- round(finalResult[, 4], 3)
-jjj2 <- finalResult[, c(5, 6)]
+
+finalResult[, c(5,6,7)] <- round(finalResult[, c(5,6,7)], 3)
+jjj2 <- finalResult[, c(5, 6, 7)]
 
 k <- 3
 mu <- runif(p, 2, 3)
@@ -82,8 +84,8 @@ for (SNR in 0.5 * 0:6) {
     )
     finalResult <- rbind(finalResult, temp)
 }
-finalResult[, 4] <- round(finalResult[, 4], 3)
-jjj3 <- finalResult[, c(5, 6)]
+finalResult[, c(5,6,7)] <- round(finalResult[, c(5,6,7)], 3)
+jjj3 <- finalResult[, c(5, 6, 7)]
 
 k <- 500
 mu <- runif(p, 2, 3)
@@ -107,10 +109,9 @@ for (SNR in 0.5 * 0:6) {
     )
     finalResult <- rbind(finalResult, temp)
 }
-finalResult[, 4] <- round(finalResult[, 4], 3)
-jjj4 <- finalResult[, c(5, 6)]
+finalResult[, c(5,6,7)] <- round(finalResult[, c(5,6,7)], 3)
+jjj4 <- finalResult[, c(5, 6, 7)]
 
 
-
-xxxxx2 <- xtable(cbind(jjj1, jjj2, jjj3, jjj4), auto = TRUE)
+xxxxx1 <- xtable(cbind(jjj1, jjj2, jjj3, jjj4), auto = TRUE)
 print(xtable(cbind(jjj1, jjj2, jjj3, jjj4), auto = TRUE), include.rownames = FALSE)

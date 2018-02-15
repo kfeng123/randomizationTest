@@ -106,7 +106,7 @@ varFanFactorModel <- function(p, theParam) {
 
 ################################ Spiked model #########################
 
-#' generate normal factor model
+#' generate normal spiked model
 #' @param modelParam the parameters of spiked model, including theSigmaSq, V, D, r
 #' @export
 genSpikedModel <- function(n,p,mu,modelParam){
@@ -120,4 +120,25 @@ genSpikedModel <- function(n,p,mu,modelParam){
     Z <- rnorm(p*n,mean = 0, sd = sqrt(theSigmaSq))
     dim(Z) <- c(p,n)
     return(t(V %*% D %*% U + Z + mu))
+}
+
+################################ Compound symmetry structure model #########################
+
+#' generate the compound symmetry structure model in Katayama et. al. (2013)
+#' @param modelParam the parameters of spiked model, including theSigmaSq, V, D, r
+#' @export
+compoundModelGen <- function(n,p, compoundParam,mu){
+    rho <- compoundParam$rho
+    Z <- rnorm(p*n,mean = 0, sd = 1)
+    dim(Z) <- c(p,n)
+    return(t(sqrt(1-rho)*Z+sqrt(rho)*outer(rep(1,p),rnorm(n))+ mu))
+}
+
+#' calculate the population variance of Fan's factor model
+#' @export
+varCompoundModel <- function(p, compoundParam) {
+    temp <- rep(compoundParam$rho,p*p)
+    dim(temp) <- c(p,p)
+    diag(temp) <- 1
+    return(temp)
 }

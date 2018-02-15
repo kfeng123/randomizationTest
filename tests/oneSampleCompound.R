@@ -23,9 +23,10 @@ for (SNR in 0.5 * 0:6) {
         sparse = FALSE,
         B = B,
         SNR = SNR,
-        innov = list("type" = "factor"),
+        innov = list("type" = "compound"),
         maParam = list("k" = k, "rho" = rho),
         factorParam = list("a" = a, "b" = b),
+        compoundParam = list("rho"=0.4),
         needPvalue = FALSE
     )
     finalResult <- rbind(finalResult, temp)
@@ -51,9 +52,10 @@ for (SNR in 0.5 * 0:6) {
         B = B,
         SNR = SNR,
         #innov=list("type"="MA","innov"="gamma"),
-        innov = list("type" = "factor"),
+        innov = list("type" = "compound"),
         maParam = list("k" = k, "rho" = rho),
         factorParam = list("a" = a, "b" = b),
+        compoundParam = list("rho"=0.4),
         needPvalue = FALSE
     )
     finalResult <- rbind(finalResult, temp)
@@ -77,9 +79,10 @@ for (SNR in 0.5 * 0:6) {
         sparse = TRUE,
         B = B,
         SNR = SNR,
-        innov=list("type"="factor"),
+        innov=list("type"="compound"),
         maParam = list("k" = k, "rho" = rho),
         factorParam = list("a" = a, "b" = b),
+        compoundParam = list("rho"=0.8),
         needPvalue = FALSE
     )
     finalResult <- rbind(finalResult, temp)
@@ -102,9 +105,10 @@ for (SNR in 0.5 * 0:6) {
         sparse = TRUE,
         B = B,
         SNR = SNR,
-        innov=list("type"="factor"),
+        innov=list("type"="compound"),
         maParam = list("k" = k, "rho" = rho),
         factorParam = list("a" = a, "b" = b),
+        compoundParam = list("rho"=0.8),
         needPvalue = FALSE
     )
     finalResult <- rbind(finalResult, temp)
